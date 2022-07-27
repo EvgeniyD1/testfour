@@ -2,6 +2,7 @@ package com.example.testfour.controller;
 
 import com.example.testfour.domain.User;
 import com.example.testfour.service.UserService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +19,7 @@ import java.util.regex.Pattern;
 
 @Controller
 @RequestMapping("/users")
+@PreAuthorize("hasAuthority('USER')")
 public class UserController {
 
     private final UserService userService;
@@ -30,23 +32,18 @@ public class UserController {
     public String userList(Model model) {
         List<User> users = userService.findAll();
         model.addAttribute("users", users);
-
         return "userList";
     }
 
     @PostMapping("/block/{id}")
     public String blockUsers(@PathVariable Long id){
-        User user = userService.findById(id);
-        user.setNotBlocked(false);
-        userService.save(user);
+        userService.block(id);
         return "redirect:" + "/users";
     }
 
     @PostMapping("/unblock/{id}")
     public String unblockUsers(@PathVariable Long id){
-        User user = userService.findById(id);
-        user.setNotBlocked(true);
-        userService.save(user);
+        userService.unblock(id);
         return "redirect:" + "/users";
     }
 
@@ -60,7 +57,7 @@ public class UserController {
     public String blockAll(@RequestParam String blockId){
         Set<Long> ids = getLongs(blockId);
         for (Long id : ids) {
-            userService.block(id, false);
+            userService.block(id);
         }
         return "redirect:" + "/users";
     }
@@ -69,7 +66,7 @@ public class UserController {
     public String unblockAll(@RequestParam String unblockId){
         Set<Long> ids = getLongs(unblockId);
         for (Long id : ids) {
-            userService.block(id, true);
+            userService.unblock(id);
         }
         return "redirect:" + "/users";
     }

@@ -47,7 +47,7 @@
         </tr>
         </thead>
         <tbody>
-        <#list users as user>
+        <#list users?sort_by("id")?reverse as user>
             <tr data-id="${user.id}">
                 <td class="align-middle">
                     <label for="${user.id}"></label>

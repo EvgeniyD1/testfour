@@ -17,10 +17,14 @@ public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final SessionService sessionService;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository,
+                       PasswordEncoder passwordEncoder,
+                       SessionService sessionService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.sessionService = sessionService;
     }
 
     @Override
@@ -31,7 +35,7 @@ public class UserService implements UserDetailsService {
             throw new UsernameNotFoundException("User not found");
         }
         user.setLoginDate(new Date());
-        user.setStatus("ACTIVE");
+        user.setStatus("Online");
         save(user);
         return user;
     }
@@ -59,7 +63,7 @@ public class UserService implements UserDetailsService {
         user.setEmail(email);
         user.setCreationDate(new Date());
         user.setLoginDate(new Date());
-        user.setStatus("ACTIVE");
+        user.setStatus("Offline");
         user.setRole(Role.USER);
         user.setNotBlocked(true);
         save(user);
@@ -67,12 +71,20 @@ public class UserService implements UserDetailsService {
 
     public void delete(Long id) {
         User user = findById(id);
+        sessionService.expireUserSessions(user.getUsername());
         userRepository.delete(user);
     }
 
-    public void block(Long id, Boolean bl) {
+    public void block(Long id) {
         User user = findById(id);
-        user.setNotBlocked(bl);
+        user.setNotBlocked(false);
+        userRepository.save(user);
+        sessionService.expireUserSessions(user.getUsername());
+    }
+
+    public void unblock(Long id) {
+        User user = findById(id);
+        user.setNotBlocked(true);
         userRepository.save(user);
     }
 }
