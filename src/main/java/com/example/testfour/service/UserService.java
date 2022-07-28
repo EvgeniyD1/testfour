@@ -35,7 +35,9 @@ public class UserService implements UserDetailsService {
             throw new UsernameNotFoundException("User not found");
         }
         user.setLoginDate(new Date());
-        user.setStatus("Online");
+        if (Boolean.TRUE.equals(user.getNotBlocked())){
+            user.setStatus("Online");
+        }
         save(user);
         return user;
     }
