@@ -35,7 +35,9 @@ public class UserService implements UserDetailsService {
             throw new UsernameNotFoundException("User not found");
         }
         user.setLoginDate(new Date());
-        user.setStatus("Online");
+        if (Boolean.TRUE.equals(user.getNotBlocked())){
+            user.setStatus("Online");
+        }
         save(user);
         return user;
     }
@@ -78,6 +80,7 @@ public class UserService implements UserDetailsService {
     public void block(Long id) {
         User user = findById(id);
         user.setNotBlocked(false);
+        user.setStatus("Offline");
         userRepository.save(user);
         sessionService.expireUserSessions(user.getUsername());
     }
