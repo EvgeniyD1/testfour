@@ -1,14 +1,11 @@
 <#import "parts/common.ftlh" as c>
 <@c.page>
     <table class="table" id="user-data">
-        <button class="btn btn-outline-info mb-3 mx-1" type="button" id="select">
-            Confirm Selection
-        </button>
         <form method="post" action="/users/blockAll">
             <label for="blockId"></label>
             <input type="hidden" name="_csrf" value="${_csrf.token}"/>
             <input type="hidden" name="blockId" id="blockId" value=""/>
-            <button class="btn btn-outline-info mb-3 mx-1" type="submit" id="select">
+            <button class="btn btn-outline-info mb-3 mx-1" type="submit" id="selectBl">
                 Block All Selected Accounts
             </button>
         </form>
@@ -16,7 +13,7 @@
             <label for="unblockId"></label>
             <input type="hidden" name="_csrf" value="${_csrf.token}"/>
             <input type="hidden" name="unblockId" id="unblockId" value=""/>
-            <button class="btn btn-outline-info mb-3 mx-1" type="submit" id="select">
+            <button class="btn btn-outline-info mb-3 mx-1" type="submit" id="selectUn">
                 Unblock All Selected Accounts
             </button>
         </form>
@@ -24,7 +21,7 @@
             <label for="deleteId"></label>
             <input type="hidden" name="_csrf" value="${_csrf.token}"/>
             <input type="hidden" name="deleteId" id="deleteId" value=""/>
-            <button class="btn btn-outline-info mb-3 mx-1" type="submit" id="select">
+            <button class="btn btn-outline-info mb-3 mx-1" type="submit" id="selectDel">
                 Delete All Selected Accounts
             </button>
         </form>
@@ -96,7 +93,8 @@
                     checkboxs[i].checked = source.checked;
             }
         }
-        document.getElementById('select').onclick = function () {
+
+        function selected() {
             let checkboxes = document.getElementsByClassName("check");
             let userIds = [];
             for (let checkbox of checkboxes) {
@@ -104,11 +102,17 @@
                     userIds.push(checkbox.value)
                 }
             }
-            let all = userIds.toString();
-            console.log(all)
-            document.getElementById('blockId').value = all;
-            document.getElementById('unblockId').value = all;
-            document.getElementById('deleteId').value = all;
+            return userIds.toString();
+        }
+
+        document.getElementById('selectBl').onclick = function () {
+            document.getElementById('blockId').value = selected();
+        }
+        document.getElementById('selectUn').onclick = function () {
+            document.getElementById('unblockId').value = selected();
+        }
+        document.getElementById('selectDel').onclick = function () {
+            document.getElementById('deleteId').value = selected();
         }
     </script>
 </@c.page>
